@@ -1,9 +1,12 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+import { useMoodStore } from '../store/useMoodStore'
+import { getMoodColor, getMoodHoverColor } from '../utils/moodColors'
 
 type HeatmapCell = {
   date: Date
   label: string
   inYear: boolean
+  mood: string | null
 }
 
 interface HeatmapProps {
@@ -16,7 +19,7 @@ const DAYS_PER_WEEK = 7
 
 const getDateKey = (date: Date) => date.toISOString().split('T')[0]
 
-const generateHeatmapCells = (year: number): HeatmapCell[] => {
+const generateHeatmapCells = (year: number, allMoods: Record<string, any>): HeatmapCell[] => {
   const cells: HeatmapCell[] = []
   const janFirst = new Date(year, 0, 1)
   const startDate = new Date(janFirst)
@@ -25,10 +28,12 @@ const generateHeatmapCells = (year: number): HeatmapCell[] => {
   for (let i = 0; i < WEEKS_IN_YEAR * DAYS_PER_WEEK; i++) {
     const date = new Date(startDate)
     date.setDate(startDate.getDate() + i)
+    const dateKey = getDateKey(date)
     cells.push({
       date,
-      label: getDateKey(date),
+      label: dateKey,
       inYear: date.getFullYear() === year,
+      mood: allMoods[dateKey] || null,
     })
   }
 
@@ -36,7 +41,43 @@ const generateHeatmapCells = (year: number): HeatmapCell[] => {
 }
 
 function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps) {
-  const cells = useMemo(() => generateHeatmapCells(year), [year])
+  const { getAllMoods } = useMoodStore()
+  const [refreshKey, setRefreshKey] = useState(0)
+  
+  // Listen for storage changes (updates from other tabs/windows)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'moodTracker_data') {
+        setRefreshKey(prev => prev + 1)
+      }
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+  
+  // Also refresh when window gets focus (user might have updated in another tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      setRefreshKey(prev => prev + 1)
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
+  
+  // Expose a refresh function that can be called after mood updates
+  // This will be triggered by parent components when moods change
+  useEffect(() => {
+    // Create a custom event listener for manual refresh
+    const handleRefresh = () => {
+      setRefreshKey(prev => prev + 1)
+    }
+    window.addEventListener('moodUpdated', handleRefresh)
+    return () => window.removeEventListener('moodUpdated', handleRefresh)
+  }, [])
+
+  const allMoods = getAllMoods()
+  const cells = useMemo(() => generateHeatmapCells(year, allMoods), [year, allMoods, refreshKey])
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
@@ -52,17 +93,34 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
             gridTemplateColumns: `repeat(${WEEKS_IN_YEAR}, minmax(0, 1fr))`,
           }}
         >
-          {cells.map((cell) => (
-            <button
-              type="button"
-              key={cell.label}
-              onClick={() => onCellClick?.(cell.date)}
-              className={`w-4 h-4 rounded-sm transition-colors ${
-                cell.inYear ? 'bg-gray-200 hover:bg-gray-300' : 'bg-gray-100 opacity-60'
-              } focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400`}
-              aria-label={`Mood entry for ${cell.label}`}
-            />
-          ))}
+          {cells.map((cell) => {
+            const baseColor = cell.inYear 
+              ? getMoodColor(cell.mood)
+              : 'bg-gray-100'
+            const hoverColor = cell.inYear
+              ? getMoodHoverColor(cell.mood)
+              : 'hover:bg-gray-200'
+            
+            return (
+              <button
+                type="button"
+                key={cell.label}
+                onClick={() => onCellClick?.(cell.date)}
+                className={`
+                  w-4 h-4 rounded-sm
+                  ${baseColor}
+                  ${hoverColor}
+                  transition-all duration-300 ease-in-out
+                  transform hover:scale-110 active:scale-95
+                  ${!cell.inYear ? 'opacity-60' : 'opacity-100'}
+                  focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400
+                  cursor-pointer
+                `}
+                aria-label={`Mood entry for ${cell.label}${cell.mood ? `: ${cell.mood}` : ''}`}
+                title={cell.inYear ? `${cell.label}${cell.mood ? ` - ${cell.mood}` : ' - No mood recorded'}` : ''}
+              />
+            )
+          })}
         </div>
       </div>
 

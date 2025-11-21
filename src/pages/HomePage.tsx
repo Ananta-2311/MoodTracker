@@ -11,6 +11,8 @@ function HomePage() {
   const handleMoodSelect = (mood: MoodOption) => {
     setMood(mood)
     setShowPicker(false)
+    // Trigger heatmap refresh
+    window.dispatchEvent(new Event('moodUpdated'))
   }
 
   return (
