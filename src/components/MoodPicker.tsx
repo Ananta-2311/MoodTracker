@@ -2,10 +2,16 @@ import { useState } from 'react';
 
 export type MoodOption = 'great' | 'good' | 'neutral' | 'bad' | 'terrible';
 
+interface PickerPosition {
+  x: number;
+  y: number;
+}
+
 interface MoodPickerProps {
   onSelect: (mood: MoodOption) => void;
   isOpen?: boolean;
   onClose?: () => void;
+  position?: PickerPosition | null;
 }
 
 const moodOptions: { value: MoodOption; label: string; color: string; bgColor: string; hoverColor: string }[] = [
@@ -46,7 +52,7 @@ const moodOptions: { value: MoodOption; label: string; color: string; bgColor: s
   },
 ];
 
-function MoodPicker({ onSelect, isOpen = true, onClose }: MoodPickerProps) {
+function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerProps) {
   const [selectedMood, setSelectedMood] = useState<MoodOption | null>(null);
 
   const handleSelect = (mood: MoodOption) => {
@@ -65,9 +71,56 @@ function MoodPicker({ onSelect, isOpen = true, onClose }: MoodPickerProps) {
     return null;
   }
 
+  // Calculate position for the picker
+  const getPickerStyle = (): React.CSSProperties => {
+    if (position) {
+      const pickerWidth = 320; // Approximate width of picker
+      const pickerHeight = 300; // Approximate height of picker
+      const offset = 20; // Offset from clicked cell
+      
+      // Calculate horizontal position (center on x, but keep within viewport)
+      let left = position.x;
+      if (left + pickerWidth / 2 > window.innerWidth) {
+        left = window.innerWidth - pickerWidth / 2 - 10;
+      }
+      if (left - pickerWidth / 2 < 0) {
+        left = pickerWidth / 2 + 10;
+      }
+      
+      // Calculate vertical position (below cell, but keep within viewport)
+      let top = position.y + offset;
+      if (top + pickerHeight > window.innerHeight) {
+        top = position.y - pickerHeight - offset; // Show above if no room below
+      }
+      if (top < 0) {
+        top = 10; // Fallback to top of screen
+      }
+      
+      return {
+        position: 'fixed',
+        left: `${left}px`,
+        top: `${top}px`,
+        transform: 'translate(-50%, 0)',
+        zIndex: 50,
+      };
+    }
+    // Default centered position
+    return {};
+  };
+
+  const containerClass = position
+    ? 'fixed inset-0 z-50 bg-black bg-opacity-50'
+    : 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm transform transition-all duration-200">
+    <div className={containerClass} onClick={onClose}>
+      <div 
+        className={`bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm transform transition-all duration-200 ${
+          position ? '' : 'mx-auto'
+        }`}
+        style={getPickerStyle()}
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside picker
+      >
         <div className="mb-4">
           <h2 className="text-xl font-semibold text-gray-900 text-center">
             How are you feeling?

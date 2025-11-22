@@ -3,16 +3,45 @@ import MoodPicker, { type MoodOption } from '../components/MoodPicker'
 import Heatmap from '../components/Heatmap'
 import { useMoodStore } from '../store/useMoodStore'
 
+interface PickerPosition {
+  x: number
+  y: number
+}
+
 function HomePage() {
   const [showPicker, setShowPicker] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(null)
   const { setMood, getMood } = useMoodStore()
   const todayMood = getMood()
 
   const handleMoodSelect = (mood: MoodOption) => {
-    setMood(mood)
+    if (selectedDate) {
+      setMood(mood, selectedDate)
+    } else {
+      setMood(mood) // Default to today if no date selected
+    }
     setShowPicker(false)
+    setSelectedDate(null)
+    setPickerPosition(null)
     // Trigger heatmap refresh
     window.dispatchEvent(new Event('moodUpdated'))
+  }
+
+  const handleCellClick = (date: Date, event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    setPickerPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    })
+    setSelectedDate(date)
+    setShowPicker(true)
+  }
+
+  const handleClosePicker = () => {
+    setShowPicker(false)
+    setSelectedDate(null)
+    setPickerPosition(null)
   }
 
   return (
@@ -35,12 +64,13 @@ function HomePage() {
         <MoodPicker
           isOpen={showPicker}
           onSelect={handleMoodSelect}
-          onClose={() => setShowPicker(false)}
+          onClose={handleClosePicker}
+          position={pickerPosition}
         />
       </div>
       <div>
         <h2 className="text-3xl font-bold text-gray-900 mb-4">Mood History</h2>
-        <Heatmap />
+        <Heatmap onCellClick={handleCellClick} />
       </div>
     </div>
   )

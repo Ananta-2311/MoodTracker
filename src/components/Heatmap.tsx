@@ -11,7 +11,7 @@ type HeatmapCell = {
 
 interface HeatmapProps {
   year?: number
-  onCellClick?: (date: Date) => void
+  onCellClick?: (date: Date, event: React.MouseEvent<HTMLButtonElement>) => void
 }
 
 const WEEKS_IN_YEAR = 53
@@ -105,7 +105,7 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
               <button
                 type="button"
                 key={cell.label}
-                onClick={() => onCellClick?.(cell.date)}
+                onClick={(e) => onCellClick?.(cell.date, e)}
                 className={`
                   w-4 h-4 rounded-sm
                   ${baseColor}
