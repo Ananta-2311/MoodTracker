@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import MoodPicker, { type MoodOption } from '../components/MoodPicker'
 import Heatmap from '../components/Heatmap'
+import YearSelector from '../components/YearSelector'
 import { useMoodStore } from '../store/useMoodStore'
 
 interface PickerPosition {
@@ -12,6 +13,7 @@ function HomePage() {
   const [showPicker, setShowPicker] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(null)
+  const [activeYear, setActiveYear] = useState(new Date().getFullYear())
   const { setMood, getMood } = useMoodStore()
   const todayMood = getMood()
 
@@ -69,8 +71,16 @@ function HomePage() {
         />
       </div>
       <div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Mood History</h2>
-        <Heatmap onCellClick={handleCellClick} />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-3xl font-bold text-gray-900">Mood History</h2>
+        </div>
+        <div className="mb-6">
+          <YearSelector 
+            year={activeYear} 
+            onYearChange={setActiveYear}
+          />
+        </div>
+        <Heatmap year={activeYear} onCellClick={handleCellClick} />
       </div>
     </div>
   )
