@@ -109,20 +109,20 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
   };
 
   const containerClass = position
-    ? 'fixed inset-0 z-50 bg-black bg-opacity-50'
-    : 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50';
+    ? 'fixed inset-0 z-50 bg-black bg-opacity-50 dark:bg-opacity-70'
+    : 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 dark:bg-opacity-70';
 
   return (
     <div className={containerClass} onClick={onClose}>
       <div 
-        className={`bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm transform transition-all duration-200 ${
+        className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm transform transition-all duration-200 ${
           position ? '' : 'mx-auto'
         }`}
         style={getPickerStyle()}
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside picker
       >
         <div className="mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 text-center">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white text-center">
             How are you feeling?
           </h2>
         </div>
@@ -155,7 +155,7 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
         {onClose && (
           <button
             onClick={onClose}
-            className="mt-4 w-full text-gray-500 hover:text-gray-700 text-sm font-medium py-2 transition-colors"
+            className="mt-4 w-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium py-2 transition-colors"
             aria-label="Close mood picker"
           >
             Cancel

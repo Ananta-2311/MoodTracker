@@ -150,10 +150,60 @@ export function useMoodStore() {
     }
   };
 
+  /**
+   * Import mood data from a JSON object
+   * @param data - Mood data object to import
+   * @param merge - If true, merge with existing data. If false, replace all data.
+   * @returns true if successful, false otherwise
+   */
+  const importMoods = (data: MoodData, merge: boolean = false): boolean => {
+    try {
+      // Validate data structure
+      if (typeof data !== 'object' || Array.isArray(data)) {
+        throw new Error('Invalid data format: must be an object');
+      }
+
+      // Validate date keys and mood values
+      for (const [dateKey, moodValue] of Object.entries(data)) {
+        // Validate date format (YYYY-MM-DD)
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+          throw new Error(`Invalid date format: ${dateKey}`);
+        }
+        
+        // Validate date is actually valid
+        const date = new Date(dateKey);
+        if (isNaN(date.getTime())) {
+          throw new Error(`Invalid date: ${dateKey}`);
+        }
+
+        // Validate mood value
+        if (!validateMood(moodValue)) {
+          throw new Error(`Invalid mood value for ${dateKey}: ${moodValue}`);
+        }
+      }
+
+      if (merge) {
+        // Merge with existing data
+        const existing = loadFromStorage();
+        const merged = { ...existing, ...data };
+        saveToStorage(merged);
+      } else {
+        // Replace all data
+        saveToStorage(data);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error importing moods:', error);
+      throw error; // Re-throw to allow error handling in UI
+    }
+  };
+
   return {
     setMood,
     getMood,
     getAllMoods,
     clearMoods,
+    importMoods,
   };
 }

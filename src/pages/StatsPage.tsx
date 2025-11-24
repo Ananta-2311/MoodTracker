@@ -123,17 +123,17 @@ function StatsPage() {
     subtitle?: string
     icon?: string
   }) => (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
           {subtitle && (
-            <p className="text-sm text-gray-500 mt-2">{subtitle}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{subtitle}</p>
           )}
         </div>
         {icon && (
-          <div className="text-4xl text-gray-300">{icon}</div>
+          <div className="text-4xl text-gray-300 dark:text-gray-600">{icon}</div>
         )}
       </div>
     </div>
@@ -142,7 +142,7 @@ function StatsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">Mood Statistics</h2>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Mood Statistics</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <StatCard
@@ -183,8 +183,8 @@ function StatsPage() {
       </div>
 
       {stats.totalEntries === 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-          <p className="text-yellow-800">
+        <div className="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6 text-center">
+          <p className="text-yellow-800 dark:text-yellow-200">
             No mood data yet. Start tracking your moods to see statistics!
           </p>
         </div>

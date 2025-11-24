@@ -80,10 +80,10 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
   const cells = useMemo(() => generateHeatmapCells(year, allMoods), [year, allMoods, refreshKey])
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Mood Heatmap</h3>
-        <span className="text-sm text-gray-500">{year}</span>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Mood Heatmap</h3>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{year}</span>
       </div>
 
       <div className="overflow-x-auto">
@@ -96,10 +96,10 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
           {cells.map((cell) => {
             const baseColor = cell.inYear 
               ? getMoodColor(cell.mood)
-              : 'bg-gray-100'
+              : 'bg-gray-100 dark:bg-gray-700'
             const hoverColor = cell.inYear
               ? getMoodHoverColor(cell.mood)
-              : 'hover:bg-gray-200'
+              : 'hover:bg-gray-200 dark:hover:bg-gray-600'
             
             return (
               <button
@@ -124,7 +124,7 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-gray-400">Tap any cell to record or view a mood.</p>
+      <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">Tap any cell to record or view a mood.</p>
     </div>
   )
 }

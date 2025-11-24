@@ -30,18 +30,18 @@ function YearSelector({ year, onYearChange, minYear, maxYear }: YearSelectorProp
         className={`
           px-4 py-2 rounded-lg font-medium transition-all duration-200
           ${year <= defaultMinYear
-            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95'
+            ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 active:scale-95'
           }
-          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400
+          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 dark:focus:ring-gray-500
         `}
         aria-label="Previous year"
       >
         ← Previous
       </button>
       
-      <div className="px-6 py-2 bg-white rounded-lg border border-gray-200 shadow-sm">
-        <span className="text-xl font-semibold text-gray-900">{year}</span>
+      <div className="px-6 py-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+        <span className="text-xl font-semibold text-gray-900 dark:text-white">{year}</span>
       </div>
       
       <button
@@ -50,10 +50,10 @@ function YearSelector({ year, onYearChange, minYear, maxYear }: YearSelectorProp
         className={`
           px-4 py-2 rounded-lg font-medium transition-all duration-200
           ${year >= defaultMaxYear
-            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95'
+            ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 active:scale-95'
           }
-          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400
+          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 dark:focus:ring-gray-500
         `}
         aria-label="Next year"
       >
