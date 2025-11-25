@@ -113,9 +113,9 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
     : 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 dark:bg-opacity-70';
 
   return (
-    <div className={containerClass} onClick={onClose}>
+    <div className={`${containerClass} animate-fade-in`} onClick={onClose}>
       <div 
-        className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm transform transition-all duration-200 ${
+        className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm transform transition-all duration-200 animate-scale-in ${
           position ? '' : 'mx-auto'
         }`}
         style={getPickerStyle()}

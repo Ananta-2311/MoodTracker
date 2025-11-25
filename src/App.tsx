@@ -18,9 +18,10 @@ function Navigation() {
             <Link
               to="/"
               className={`
-                px-4 py-2 rounded-lg font-medium transition-colors
+                px-4 py-2 rounded-lg font-medium transition-all duration-200
+                transform hover:scale-105 active:scale-95
                 ${isActive('/')
-                  ? 'bg-blue-600 text-white dark:bg-blue-500'
+                  ? 'bg-blue-600 text-white dark:bg-blue-500 shadow-md'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }
               `}
@@ -30,9 +31,10 @@ function Navigation() {
             <Link
               to="/stats"
               className={`
-                px-4 py-2 rounded-lg font-medium transition-colors
+                px-4 py-2 rounded-lg font-medium transition-all duration-200
+                transform hover:scale-105 active:scale-95
                 ${isActive('/stats')
-                  ? 'bg-blue-600 text-white dark:bg-blue-500'
+                  ? 'bg-blue-600 text-white dark:bg-blue-500 shadow-md'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }
               `}

@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import MoodPicker, { type MoodOption } from '../components/MoodPicker'
 import Heatmap from '../components/Heatmap'
 import YearSelector from '../components/YearSelector'
 import { useMoodStore, type MoodData } from '../store/useMoodStore'
+import { getMoodsFromBackend, pushMoodsToBackend, checkBackendHealth } from '../utils/api'
 
 interface PickerPosition {
   x: number
@@ -15,9 +16,16 @@ function HomePage() {
   const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(null)
   const [activeYear, setActiveYear] = useState(new Date().getFullYear())
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [backendAvailable, setBackendAvailable] = useState<boolean | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { setMood, getMood, getAllMoods, importMoods } = useMoodStore()
   const todayMood = getMood()
+
+  // Check backend availability on mount
+  useEffect(() => {
+    checkBackendHealth().then(setBackendAvailable).catch(() => setBackendAvailable(false))
+  }, [])
 
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text })
@@ -110,6 +118,96 @@ function HomePage() {
     reader.readAsText(file)
   }
 
+  const handleSync = async () => {
+    setIsSyncing(true)
+    try {
+      // First check if backend is available
+      const isAvailable = await checkBackendHealth()
+      if (!isAvailable) {
+        showMessage('error', 'Backend server is not available. Make sure it\'s running on http://localhost:8000')
+        setBackendAvailable(false)
+        setIsSyncing(false)
+        return
+      }
+      setBackendAvailable(true)
+
+      // Pull data from backend
+      const backendMoods = await getMoodsFromBackend()
+      const localMoods = getAllMoods()
+
+      // Merge: backend takes precedence if both exist, otherwise keep local
+      const mergedMoods: MoodData = { ...localMoods, ...backendMoods }
+
+      // Push merged data to backend
+      await pushMoodsToBackend(mergedMoods)
+
+      // Update local storage with merged data
+      importMoods(mergedMoods, false)
+
+      showMessage('success', 'Data synced successfully!')
+      
+      // Trigger refresh
+      window.dispatchEvent(new Event('moodUpdated'))
+    } catch (error) {
+      console.error('Sync error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sync data'
+      showMessage('error', `Sync failed: ${errorMessage}`)
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  const handlePushToBackend = async () => {
+    setIsSyncing(true)
+    try {
+      const isAvailable = await checkBackendHealth()
+      if (!isAvailable) {
+        showMessage('error', 'Backend server is not available. Make sure it\'s running on http://localhost:8000')
+        setBackendAvailable(false)
+        setIsSyncing(false)
+        return
+      }
+      setBackendAvailable(true)
+
+      const localMoods = getAllMoods()
+      await pushMoodsToBackend(localMoods)
+      showMessage('success', 'Data pushed to backend successfully!')
+    } catch (error) {
+      console.error('Push error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to push data'
+      showMessage('error', `Push failed: ${errorMessage}`)
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  const handlePullFromBackend = async () => {
+    setIsSyncing(true)
+    try {
+      const isAvailable = await checkBackendHealth()
+      if (!isAvailable) {
+        showMessage('error', 'Backend server is not available. Make sure it\'s running on http://localhost:8000')
+        setBackendAvailable(false)
+        setIsSyncing(false)
+        return
+      }
+      setBackendAvailable(true)
+
+      const backendMoods = await getMoodsFromBackend()
+      importMoods(backendMoods, false)
+      showMessage('success', 'Data pulled from backend successfully!')
+      
+      // Trigger refresh
+      window.dispatchEvent(new Event('moodUpdated'))
+    } catch (error) {
+      console.error('Pull error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to pull data'
+      showMessage('error', `Pull failed: ${errorMessage}`)
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
   return (
     <div className="space-y-8">
       {message && (
@@ -144,7 +242,7 @@ function HomePage() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setShowPicker(true)}
-            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
           >
             {todayMood ? `Update Mood (${todayMood})` : 'Select Mood'}
           </button>
@@ -185,7 +283,8 @@ function HomePage() {
             className="
               bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600
               text-white font-medium px-6 py-3 rounded-lg
-              transition-colors duration-200
+              transition-all duration-200 transform hover:scale-105 active:scale-95
+              shadow-md hover:shadow-lg
               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500
             "
           >
@@ -196,7 +295,8 @@ function HomePage() {
             className="
               bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600
               text-white font-medium px-6 py-3 rounded-lg
-              transition-colors duration-200
+              transition-all duration-200 transform hover:scale-105 active:scale-95
+              shadow-md hover:shadow-lg
               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
             "
           >
@@ -211,6 +311,75 @@ function HomePage() {
           className="hidden"
           aria-label="Import mood data file"
         />
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Backend Sync</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <div className={`
+            w-3 h-3 rounded-full
+            ${backendAvailable === null 
+              ? 'bg-gray-400 dark:bg-gray-600' 
+              : backendAvailable 
+                ? 'bg-green-500' 
+                : 'bg-red-500'
+            }
+          `} />
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {backendAvailable === null 
+              ? 'Checking backend status...' 
+              : backendAvailable 
+                ? 'Backend connected' 
+                : 'Backend unavailable'}
+          </p>
+        </div>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
+          Sync your mood data with the backend server. Sync merges local and remote data.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <button
+            onClick={handleSync}
+            disabled={isSyncing}
+            className="
+              bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600
+              disabled:bg-gray-400 disabled:cursor-not-allowed
+              text-white font-medium px-6 py-3 rounded-lg
+              transition-all duration-200 transform hover:scale-105 active:scale-95
+              shadow-md hover:shadow-lg
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500
+            "
+          >
+            {isSyncing ? '⏳ Syncing...' : '🔄 Sync (Push & Pull)'}
+          </button>
+          <button
+            onClick={handlePushToBackend}
+            disabled={isSyncing}
+            className="
+              bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600
+              disabled:bg-gray-400 disabled:cursor-not-allowed
+              text-white font-medium px-6 py-3 rounded-lg
+              transition-all duration-200 transform hover:scale-105 active:scale-95
+              shadow-md hover:shadow-lg
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+            "
+          >
+            {isSyncing ? '⏳ Pushing...' : '⬆️ Push to Backend'}
+          </button>
+          <button
+            onClick={handlePullFromBackend}
+            disabled={isSyncing}
+            className="
+              bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600
+              disabled:bg-gray-400 disabled:cursor-not-allowed
+              text-white font-medium px-6 py-3 rounded-lg
+              transition-all duration-200 transform hover:scale-105 active:scale-95
+              shadow-md hover:shadow-lg
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500
+            "
+          >
+            {isSyncing ? '⏳ Pulling...' : '⬇️ Pull from Backend'}
+          </button>
+        </div>
       </div>
     </div>
   )

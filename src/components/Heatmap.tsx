@@ -110,8 +110,9 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
                   w-4 h-4 rounded-sm
                   ${baseColor}
                   ${hoverColor}
-                  transition-all duration-300 ease-in-out
-                  transform hover:scale-110 active:scale-95
+                  transition-all duration-500 ease-in-out
+                  transition-colors duration-300 ease-in-out
+                  transform hover:scale-125 active:scale-95
                   ${!cell.inYear ? 'opacity-60' : 'opacity-100'}
                   focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400
                   cursor-pointer

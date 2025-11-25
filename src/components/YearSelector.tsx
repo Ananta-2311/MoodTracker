@@ -31,7 +31,7 @@ function YearSelector({ year, onYearChange, minYear, maxYear }: YearSelectorProp
           px-4 py-2 rounded-lg font-medium transition-all duration-200
           ${year <= defaultMinYear
             ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 active:scale-95'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md'
           }
           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 dark:focus:ring-gray-500
         `}
@@ -51,7 +51,7 @@ function YearSelector({ year, onYearChange, minYear, maxYear }: YearSelectorProp
           px-4 py-2 rounded-lg font-medium transition-all duration-200
           ${year >= defaultMaxYear
             ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 active:scale-95'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md'
           }
           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 dark:focus:ring-gray-500
         `}
