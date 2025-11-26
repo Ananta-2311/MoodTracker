@@ -77,8 +77,8 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
       return {};
     }
 
-    const pickerWidth = 384; // max-w-sm = 384px
-    const pickerHeight = 280; // Approximate height including padding
+    const pickerWidth = 512; // max-w-lg = 512px
+    const pickerHeight = 350; // Approximate height including padding
     const padding = 16; // Viewport padding
     const offset = 12; // Offset from clicked cell
     
@@ -137,19 +137,19 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
   return (
     <div className={`${containerClass} animate-fade-in`} onClick={onClose}>
       <div 
-        className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 w-full max-w-sm transform transition-all duration-200 animate-scale-in ${
+        className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-10 w-full max-w-lg transform transition-all duration-200 animate-scale-in ${
           position ? '' : 'mx-auto'
         }`}
         style={getPickerStyle()}
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside picker
       >
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white text-center">
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white text-center">
             How are you feeling?
           </h2>
         </div>
         
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-5">
           {moodOptions.map((option) => (
             <button
               key={option.value}
@@ -158,15 +158,15 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
                 ${option.bgColor}
                 ${option.color}
                 ${option.hoverColor}
-                px-5 py-4 sm:py-3 rounded-xl
-                font-medium text-sm sm:text-base
+                px-6 py-5 rounded-xl
+                font-semibold text-base
                 transition-all duration-200
                 transform hover:scale-105 active:scale-95
-                shadow-sm hover:shadow-md
+                shadow-md hover:shadow-lg
                 focus:outline-none focus:ring-2 focus:ring-offset-2
                 focus:ring-gray-400 dark:focus:ring-gray-500
-                min-h-[48px] sm:min-h-0
-                ${selectedMood === option.value ? 'ring-2 ring-offset-2 ring-gray-400 dark:ring-gray-500 scale-105 shadow-md' : ''}
+                min-h-[60px]
+                ${selectedMood === option.value ? 'ring-2 ring-offset-2 ring-gray-400 dark:ring-gray-500 scale-105 shadow-lg' : ''}
               `}
               aria-label={`Select ${option.label} mood`}
             >
@@ -178,7 +178,7 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
         {onClose && (
           <button
             onClick={onClose}
-            className="mt-4 w-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium py-2 transition-colors"
+            className="mt-6 w-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-base font-medium py-3 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label="Close mood picker"
           >
             Cancel

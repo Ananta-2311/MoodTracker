@@ -19,6 +19,9 @@ const DAYS_PER_WEEK = 7
 
 const getDateKey = (date: Date) => date.toISOString().split('T')[0]
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
 const generateHeatmapCells = (year: number, allMoods: Record<string, any>): HeatmapCell[] => {
   const cells: HeatmapCell[] = []
   const janFirst = new Date(year, 0, 1)
@@ -38,6 +41,44 @@ const generateHeatmapCells = (year: number, allMoods: Record<string, any>): Heat
   }
 
   return cells
+}
+
+// Get month labels for the heatmap
+const getMonthLabels = (year: number): Array<{ week: number; month: string }> => {
+  const labels: Array<{ week: number; month: string }> = []
+  const janFirst = new Date(year, 0, 1)
+  const startDate = new Date(janFirst)
+  startDate.setDate(janFirst.getDate() - janFirst.getDay()) // move back to Sunday
+
+  let currentMonth = -1
+  let weekIndex = 0
+
+  for (let i = 0; i < WEEKS_IN_YEAR * DAYS_PER_WEEK; i += DAYS_PER_WEEK) {
+    const weekStartDate = new Date(startDate)
+    weekStartDate.setDate(startDate.getDate() + i)
+    
+    // Check if this week contains the first day of a month
+    for (let day = 0; day < DAYS_PER_WEEK; day++) {
+      const date = new Date(weekStartDate)
+      date.setDate(weekStartDate.getDate() + day)
+      
+      if (date.getFullYear() === year && date.getDate() === 1) {
+        const month = date.getMonth()
+        if (month !== currentMonth) {
+          labels.push({
+            week: weekIndex,
+            month: MONTHS[month],
+          })
+          currentMonth = month
+        }
+        break
+      }
+    }
+    
+    weekIndex++
+  }
+
+  return labels
 }
 
 function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps) {
@@ -78,6 +119,7 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
 
   const allMoods = getAllMoods()
   const cells = useMemo(() => generateHeatmapCells(year, allMoods), [year, allMoods, refreshKey])
+  const monthLabels = useMemo(() => getMonthLabels(year), [year])
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
@@ -87,45 +129,100 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
       </div>
 
       <div className="overflow-x-auto -mx-2 px-2">
-        <div
-          className="grid gap-1.5"
-          style={{
-            gridTemplateColumns: `repeat(${WEEKS_IN_YEAR}, minmax(0, 1fr))`,
-          }}
-        >
-          {cells.map((cell) => {
-            const baseColor = cell.inYear 
-              ? getMoodColor(cell.mood)
-              : 'bg-gray-100 dark:bg-gray-700'
-            const hoverColor = cell.inYear
-              ? getMoodHoverColor(cell.mood)
-              : 'hover:bg-gray-200 dark:hover:bg-gray-600'
-            
-            return (
-              <button
-                type="button"
-                key={cell.label}
-                onClick={(e) => onCellClick?.(cell.date, e)}
-                className={`
-                  w-4 h-4 rounded-md
-                  ${baseColor}
-                  ${hoverColor}
-                  transition-all duration-500 ease-in-out
-                  transition-colors duration-300 ease-in-out
-                  transform hover:scale-125 active:scale-95
-                  ${!cell.inYear ? 'opacity-60' : 'opacity-100'}
-                  focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400 dark:focus:ring-gray-500
-                  cursor-pointer
-                `}
-                aria-label={`Mood entry for ${cell.label}${cell.mood ? `: ${cell.mood}` : ''}`}
-                title={cell.inYear ? `${cell.label}${cell.mood ? ` - ${cell.mood}` : ' - No mood recorded'}` : ''}
-              />
-            )
-          })}
+        <div className="flex gap-2">
+          {/* Weekday labels */}
+          <div className="flex flex-col gap-1.5 pt-6">
+            {WEEKDAYS.map((day, idx) => (
+              <div
+                key={day}
+                className="h-4 flex items-center justify-end pr-2 text-xs font-medium text-gray-500 dark:text-gray-400"
+                style={{ opacity: idx % 2 === 0 ? 1 : 0.5 }}
+              >
+                {idx % 2 === 0 ? day : ''}
+              </div>
+            ))}
+          </div>
+
+          {/* Heatmap grid */}
+          <div className="flex-1">
+            {/* Month labels */}
+            <div
+              className="grid gap-1.5 mb-2 relative h-6"
+              style={{
+                gridTemplateColumns: `repeat(${WEEKS_IN_YEAR}, minmax(0, 1fr))`,
+              }}
+            >
+              {Array.from({ length: WEEKS_IN_YEAR }, (_, weekIdx) => {
+                const label = monthLabels.find(l => l.week === weekIdx)
+                return (
+                  <div
+                    key={weekIdx}
+                    className="text-xs font-semibold text-gray-700 dark:text-gray-300 text-center flex items-center justify-center"
+                  >
+                    {label ? label.month : ''}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Heatmap cells */}
+            <div
+              className="grid gap-1.5"
+              style={{
+                gridTemplateColumns: `repeat(${WEEKS_IN_YEAR}, minmax(0, 1fr))`,
+              }}
+            >
+              {cells.map((cell) => {
+                const baseColor = cell.inYear 
+                  ? getMoodColor(cell.mood)
+                  : 'bg-gray-100 dark:bg-gray-700'
+                const hoverColor = cell.inYear
+                  ? getMoodHoverColor(cell.mood)
+                  : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+                
+                return (
+                  <button
+                    type="button"
+                    key={cell.label}
+                    onClick={(e) => onCellClick?.(cell.date, e)}
+                    className={`
+                      w-4 h-4 rounded-md
+                      ${baseColor}
+                      ${hoverColor}
+                      transition-all duration-500 ease-in-out
+                      transition-colors duration-300 ease-in-out
+                      transform hover:scale-125 active:scale-95
+                      ${!cell.inYear ? 'opacity-60' : 'opacity-100'}
+                      focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400 dark:focus:ring-gray-500
+                      cursor-pointer
+                    `}
+                    aria-label={`Mood entry for ${cell.label}${cell.mood ? `: ${cell.mood}` : ''}`}
+                    title={cell.inYear ? `${cell.label}${cell.mood ? ` - ${cell.mood}` : ' - No mood recorded'}` : ''}
+                  />
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
-      <p className="mt-6 text-xs text-gray-500 dark:text-gray-400 text-center">Tap any cell to record or view a mood.</p>
+      <div className="mt-6 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+        <p>Tap any cell to record or view a mood.</p>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+            <span>No data</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-md bg-emerald-600 dark:bg-emerald-500"></div>
+            <span>Great</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-md bg-blue-500 dark:bg-blue-400"></div>
+            <span>Good</span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
