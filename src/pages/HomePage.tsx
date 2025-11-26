@@ -238,11 +238,11 @@ function HomePage() {
       )}
 
       <div>
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Today's Mood</h2>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Today's Mood</h2>
         <div className="flex items-center gap-4">
           <button
             onClick={() => setShowPicker(true)}
-            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
           >
             {todayMood ? `Update Mood (${todayMood})` : 'Select Mood'}
           </button>
@@ -260,10 +260,10 @@ function HomePage() {
         />
       </div>
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Mood History</h2>
         </div>
-        <div className="mb-6">
+        <div className="mb-8">
           <YearSelector 
             year={activeYear} 
             onYearChange={setActiveYear}
@@ -272,9 +272,9 @@ function HomePage() {
         <Heatmap year={activeYear} onCellClick={handleCellClick} />
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Data Management</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Data Management</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Backup your mood data or restore from a previous backup.
         </p>
         <div className="flex flex-wrap gap-4">
@@ -282,9 +282,9 @@ function HomePage() {
             onClick={handleExportData}
             className="
               bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600
-              text-white font-medium px-6 py-3 rounded-lg
+              text-white font-medium px-6 py-3 rounded-xl
               transition-all duration-200 transform hover:scale-105 active:scale-95
-              shadow-md hover:shadow-lg
+              shadow-lg hover:shadow-xl
               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500
             "
           >
@@ -294,9 +294,9 @@ function HomePage() {
             onClick={handleImportData}
             className="
               bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600
-              text-white font-medium px-6 py-3 rounded-lg
+              text-white font-medium px-6 py-3 rounded-xl
               transition-all duration-200 transform hover:scale-105 active:scale-95
-              shadow-md hover:shadow-lg
+              shadow-lg hover:shadow-xl
               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
             "
           >
@@ -313,9 +313,9 @@ function HomePage() {
         />
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Backend Sync</h2>
-        <div className="flex items-center gap-2 mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Backend Sync</h2>
+        <div className="flex items-center gap-2 mb-6">
           <div className={`
             w-3 h-3 rounded-full
             ${backendAvailable === null 
@@ -333,7 +333,7 @@ function HomePage() {
                 : 'Backend unavailable'}
           </p>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Sync your mood data with the backend server. Sync merges local and remote data.
         </p>
         <div className="flex flex-wrap gap-4">
@@ -343,9 +343,9 @@ function HomePage() {
             className="
               bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600
               disabled:bg-gray-400 disabled:cursor-not-allowed
-              text-white font-medium px-6 py-3 rounded-lg
+              text-white font-medium px-6 py-3 rounded-xl
               transition-all duration-200 transform hover:scale-105 active:scale-95
-              shadow-md hover:shadow-lg
+              shadow-lg hover:shadow-xl
               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500
             "
           >
@@ -357,9 +357,9 @@ function HomePage() {
             className="
               bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600
               disabled:bg-gray-400 disabled:cursor-not-allowed
-              text-white font-medium px-6 py-3 rounded-lg
+              text-white font-medium px-6 py-3 rounded-xl
               transition-all duration-200 transform hover:scale-105 active:scale-95
-              shadow-md hover:shadow-lg
+              shadow-lg hover:shadow-xl
               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
             "
           >
@@ -371,9 +371,9 @@ function HomePage() {
             className="
               bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600
               disabled:bg-gray-400 disabled:cursor-not-allowed
-              text-white font-medium px-6 py-3 rounded-lg
+              text-white font-medium px-6 py-3 rounded-xl
               transition-all duration-200 transform hover:scale-105 active:scale-95
-              shadow-md hover:shadow-lg
+              shadow-lg hover:shadow-xl
               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500
             "
           >

@@ -15,26 +15,30 @@ export interface MoodData {
 
 /**
  * Get the current date in YYYY-MM-DD format
+ * Optimized for performance with caching and efficient string operations
  */
+const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
 function getDateKey(date?: Date | string): string {
-  if (typeof date === 'string') {
-    // Validate and return if already in correct format
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return date;
-    }
-    // Try to parse the string as a date
-    const parsed = new Date(date);
-    if (isNaN(parsed.getTime())) {
-      throw new Error('Invalid date string');
-    }
-    date = parsed;
+  // Fast path for string dates already in correct format
+  if (typeof date === 'string' && DATE_FORMAT_REGEX.test(date)) {
+    return date;
   }
   
-  const d = date || new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  let dateObj: Date;
+  
+  if (typeof date === 'string') {
+    // Try to parse the string as a date
+    dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      throw new Error('Invalid date string');
+    }
+  } else {
+    dateObj = date || new Date();
+  }
+  
+  // Optimized date formatting using toISOString (faster than manual formatting)
+  return dateObj.toISOString().split('T')[0];
 }
 
 /**

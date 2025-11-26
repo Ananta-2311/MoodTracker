@@ -3,13 +3,14 @@ import { type MoodOption } from '../components/MoodPicker';
 /**
  * Color map for mood values
  * Maps each mood to its corresponding background color classes
+ * Improved palette with better contrast and visual distinction
  */
 export const moodColorMap: Record<MoodOption, string> = {
-  great: 'bg-emerald-500',
-  good: 'bg-blue-500',
-  neutral: 'bg-gray-400',
-  bad: 'bg-orange-500',
-  terrible: 'bg-red-500',
+  great: 'bg-emerald-600 dark:bg-emerald-500',
+  good: 'bg-blue-500 dark:bg-blue-400',
+  neutral: 'bg-slate-400 dark:bg-slate-500',
+  bad: 'bg-amber-500 dark:bg-amber-400',
+  terrible: 'bg-rose-600 dark:bg-rose-500',
 };
 
 /**
@@ -17,11 +18,11 @@ export const moodColorMap: Record<MoodOption, string> = {
  * Maps each mood to its corresponding hover background color classes
  */
 export const moodHoverColorMap: Record<MoodOption, string> = {
-  great: 'hover:bg-emerald-600',
-  good: 'hover:bg-blue-600',
-  neutral: 'hover:bg-gray-500',
-  bad: 'hover:bg-orange-600',
-  terrible: 'hover:bg-red-600',
+  great: 'hover:bg-emerald-700 dark:hover:bg-emerald-600',
+  good: 'hover:bg-blue-600 dark:hover:bg-blue-500',
+  neutral: 'hover:bg-slate-500 dark:hover:bg-slate-600',
+  bad: 'hover:bg-amber-600 dark:hover:bg-amber-500',
+  terrible: 'hover:bg-rose-700 dark:hover:bg-rose-600',
 };
 
 /**
@@ -31,7 +32,7 @@ export const moodHoverColorMap: Record<MoodOption, string> = {
  */
 export function getMoodColor(mood: string | MoodOption | null | undefined): string {
   if (!mood) {
-    return 'bg-gray-200';
+    return 'bg-gray-200 dark:bg-gray-700';
   }
   
   // Type guard to check if mood is a valid MoodOption
@@ -39,7 +40,7 @@ export function getMoodColor(mood: string | MoodOption | null | undefined): stri
     return moodColorMap[mood as MoodOption];
   }
   
-  return 'bg-gray-200';
+  return 'bg-gray-200 dark:bg-gray-700';
 }
 
 /**
@@ -49,7 +50,7 @@ export function getMoodColor(mood: string | MoodOption | null | undefined): stri
  */
 export function getMoodHoverColor(mood: string | MoodOption | null | undefined): string {
   if (!mood) {
-    return 'hover:bg-gray-300';
+    return 'hover:bg-gray-300 dark:hover:bg-gray-600';
   }
   
   // Type guard to check if mood is a valid MoodOption
@@ -57,6 +58,6 @@ export function getMoodHoverColor(mood: string | MoodOption | null | undefined):
     return moodHoverColorMap[mood as MoodOption];
   }
   
-  return 'hover:bg-gray-300';
+  return 'hover:bg-gray-300 dark:hover:bg-gray-600';
 }
 

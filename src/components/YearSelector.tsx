@@ -40,7 +40,7 @@ function YearSelector({ year, onYearChange, minYear, maxYear }: YearSelectorProp
         ← Previous
       </button>
       
-      <div className="px-6 py-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="px-8 py-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
         <span className="text-xl font-semibold text-gray-900 dark:text-white">{year}</span>
       </div>
       

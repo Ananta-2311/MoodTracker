@@ -71,41 +71,63 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
     return null;
   }
 
-  // Calculate position for the picker
+  // Calculate position for the picker with smarter positioning logic
   const getPickerStyle = (): React.CSSProperties => {
-    if (position) {
-      const pickerWidth = 320; // Approximate width of picker
-      const pickerHeight = 300; // Approximate height of picker
-      const offset = 20; // Offset from clicked cell
-      
-      // Calculate horizontal position (center on x, but keep within viewport)
-      let left = position.x;
-      if (left + pickerWidth / 2 > window.innerWidth) {
-        left = window.innerWidth - pickerWidth / 2 - 10;
-      }
-      if (left - pickerWidth / 2 < 0) {
-        left = pickerWidth / 2 + 10;
-      }
-      
-      // Calculate vertical position (below cell, but keep within viewport)
-      let top = position.y + offset;
-      if (top + pickerHeight > window.innerHeight) {
-        top = position.y - pickerHeight - offset; // Show above if no room below
-      }
-      if (top < 0) {
-        top = 10; // Fallback to top of screen
-      }
-      
-      return {
-        position: 'fixed',
-        left: `${left}px`,
-        top: `${top}px`,
-        transform: 'translate(-50%, 0)',
-        zIndex: 50,
-      };
+    if (!position) {
+      return {};
     }
-    // Default centered position
-    return {};
+
+    const pickerWidth = 384; // max-w-sm = 384px
+    const pickerHeight = 280; // Approximate height including padding
+    const padding = 16; // Viewport padding
+    const offset = 12; // Offset from clicked cell
+    
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Calculate horizontal position with smart centering
+    let left = position.x;
+    const halfWidth = pickerWidth / 2;
+    
+    // Check if picker would overflow right
+    if (left + halfWidth > viewportWidth - padding) {
+      left = viewportWidth - halfWidth - padding;
+    }
+    // Check if picker would overflow left
+    if (left - halfWidth < padding) {
+      left = halfWidth + padding;
+    }
+    
+    // Calculate vertical position with preference for below, fallback to above
+    let top = position.y + offset;
+    let placement: 'below' | 'above' | 'center' = 'below';
+    
+    // Check if there's enough room below
+    if (top + pickerHeight > viewportHeight - padding) {
+      // Try above
+      const topAbove = position.y - pickerHeight - offset;
+      if (topAbove >= padding) {
+        top = topAbove;
+        placement = 'above';
+      } else {
+        // Not enough room above or below, center vertically
+        top = Math.max(padding, (viewportHeight - pickerHeight) / 2);
+        placement = 'center';
+      }
+    }
+    
+    // Ensure we don't go below viewport
+    if (top + pickerHeight > viewportHeight - padding) {
+      top = viewportHeight - pickerHeight - padding;
+    }
+    
+    return {
+      position: 'fixed',
+      left: `${left}px`,
+      top: `${top}px`,
+      transform: 'translate(-50%, 0)',
+      zIndex: 50,
+    };
   };
 
   const containerClass = position
@@ -115,13 +137,13 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
   return (
     <div className={`${containerClass} animate-fade-in`} onClick={onClose}>
       <div 
-        className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm transform transition-all duration-200 animate-scale-in ${
+        className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 w-full max-w-sm transform transition-all duration-200 animate-scale-in ${
           position ? '' : 'mx-auto'
         }`}
         style={getPickerStyle()}
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside picker
       >
-        <div className="mb-4">
+        <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white text-center">
             How are you feeling?
           </h2>
@@ -136,14 +158,15 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
                 ${option.bgColor}
                 ${option.color}
                 ${option.hoverColor}
-                px-4 py-4 sm:py-3 rounded-lg
+                px-5 py-4 sm:py-3 rounded-xl
                 font-medium text-sm sm:text-base
                 transition-all duration-200
                 transform hover:scale-105 active:scale-95
+                shadow-sm hover:shadow-md
                 focus:outline-none focus:ring-2 focus:ring-offset-2
-                focus:ring-gray-400
+                focus:ring-gray-400 dark:focus:ring-gray-500
                 min-h-[48px] sm:min-h-0
-                ${selectedMood === option.value ? 'ring-2 ring-offset-2 ring-gray-400 scale-105' : ''}
+                ${selectedMood === option.value ? 'ring-2 ring-offset-2 ring-gray-400 dark:ring-gray-500 scale-105 shadow-md' : ''}
               `}
               aria-label={`Select ${option.label} mood`}
             >

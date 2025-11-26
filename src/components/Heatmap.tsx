@@ -80,15 +80,15 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
   const cells = useMemo(() => generateHeatmapCells(year, allMoods), [year, allMoods, refreshKey])
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Mood Heatmap</h3>
-        <span className="text-sm text-gray-500 dark:text-gray-400">{year}</span>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Mood Heatmap</h3>
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{year}</span>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto -mx-2 px-2">
         <div
-          className="grid gap-1"
+          className="grid gap-1.5"
           style={{
             gridTemplateColumns: `repeat(${WEEKS_IN_YEAR}, minmax(0, 1fr))`,
           }}
@@ -107,14 +107,14 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
                 key={cell.label}
                 onClick={(e) => onCellClick?.(cell.date, e)}
                 className={`
-                  w-4 h-4 rounded-sm
+                  w-4 h-4 rounded-md
                   ${baseColor}
                   ${hoverColor}
                   transition-all duration-500 ease-in-out
                   transition-colors duration-300 ease-in-out
                   transform hover:scale-125 active:scale-95
                   ${!cell.inYear ? 'opacity-60' : 'opacity-100'}
-                  focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400
+                  focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400 dark:focus:ring-gray-500
                   cursor-pointer
                 `}
                 aria-label={`Mood entry for ${cell.label}${cell.mood ? `: ${cell.mood}` : ''}`}
@@ -125,7 +125,7 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">Tap any cell to record or view a mood.</p>
+      <p className="mt-6 text-xs text-gray-500 dark:text-gray-400 text-center">Tap any cell to record or view a mood.</p>
     </div>
   )
 }

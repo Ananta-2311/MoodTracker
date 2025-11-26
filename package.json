@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "repository": {
     "type": "git",
@@ -21,15 +24,20 @@
   },
   "homepage": "https://github.com/Ananta-2311/MoodTracker#readme",
   "devDependencies": {
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/jest-dom": "^6.1.5",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "@vitest/ui": "^1.1.0",
     "autoprefixer": "^10.4.22",
+    "jsdom": "^23.0.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.18",
     "typescript": "^5.9.3",
-    "vite": "^7.2.2"
+    "vite": "^7.2.2",
+    "vitest": "^1.1.0"
   },
   "dependencies": {
     "axios": "^1.6.2",
