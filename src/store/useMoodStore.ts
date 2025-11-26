@@ -141,6 +141,24 @@ export function useMoodStore() {
   };
 
   /**
+   * Delete mood for a specific date
+   * @param date - Optional date (defaults to today). Can be Date object or YYYY-MM-DD string
+   * @returns true if successful, false otherwise
+   */
+  const deleteMood = (date?: Date | string): boolean => {
+    try {
+      const dateKey = getDateKey(date);
+      const data = loadFromStorage();
+      delete data[dateKey];
+      saveToStorage(data);
+      return true;
+    } catch (error) {
+      console.error('Error deleting mood:', error);
+      return false;
+    }
+  };
+
+  /**
    * Clear all mood entries
    * @returns true if successful, false otherwise
    */
@@ -207,6 +225,7 @@ export function useMoodStore() {
     setMood,
     getMood,
     getAllMoods,
+    deleteMood,
     clearMoods,
     importMoods,
   };

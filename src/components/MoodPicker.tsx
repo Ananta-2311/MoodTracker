@@ -9,9 +9,11 @@ interface PickerPosition {
 
 interface MoodPickerProps {
   onSelect: (mood: MoodOption) => void;
+  onDelete?: () => void;
   isOpen?: boolean;
   onClose?: () => void;
   position?: PickerPosition | null;
+  showDelete?: boolean;
 }
 
 const moodOptions: { value: MoodOption; label: string; color: string; bgColor: string; hoverColor: string }[] = [
@@ -52,7 +54,7 @@ const moodOptions: { value: MoodOption; label: string; color: string; bgColor: s
   },
 ];
 
-function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerProps) {
+function MoodPicker({ onSelect, onDelete, isOpen = true, onClose, position, showDelete = false }: MoodPickerProps) {
   const [selectedMood, setSelectedMood] = useState<MoodOption | null>(null);
 
   const handleSelect = (mood: MoodOption) => {
@@ -64,6 +66,18 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
         onClose();
         setSelectedMood(null);
       }, 200);
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete();
+      if (onClose) {
+        setTimeout(() => {
+          onClose();
+          setSelectedMood(null);
+        }, 200);
+      }
     }
   };
 
@@ -158,32 +172,45 @@ function MoodPicker({ onSelect, isOpen = true, onClose, position }: MoodPickerPr
                 ${option.bgColor}
                 ${option.color}
                 ${option.hoverColor}
-                px-6 py-5 rounded-xl
-                font-semibold text-base
+                px-4 py-5 rounded-xl
+                font-semibold text-sm
                 transition-all duration-200
                 transform hover:scale-105 active:scale-95
                 shadow-md hover:shadow-lg
                 focus:outline-none focus:ring-2 focus:ring-offset-2
                 focus:ring-gray-400 dark:focus:ring-gray-500
                 min-h-[60px]
+                flex items-center justify-center
+                break-words overflow-hidden
                 ${selectedMood === option.value ? 'ring-2 ring-offset-2 ring-gray-400 dark:ring-gray-500 scale-105 shadow-lg' : ''}
               `}
               aria-label={`Select ${option.label} mood`}
             >
-              {option.label}
+              <span className="text-center leading-tight">{option.label}</span>
             </button>
           ))}
         </div>
 
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="mt-6 w-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-base font-medium py-3 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-            aria-label="Close mood picker"
-          >
-            Cancel
-          </button>
-        )}
+        <div className="mt-6 flex flex-col gap-3">
+          {showDelete && onDelete && (
+            <button
+              onClick={handleDelete}
+              className="w-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 text-base font-medium py-3 transition-colors rounded-lg border border-red-200 dark:border-red-800"
+              aria-label="Delete mood"
+            >
+              🗑️ Delete Mood
+            </button>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="w-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-base font-medium py-3 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+              aria-label="Close mood picker"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

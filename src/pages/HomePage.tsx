@@ -19,7 +19,7 @@ function HomePage() {
   const [isSyncing, setIsSyncing] = useState(false)
   const [backendAvailable, setBackendAvailable] = useState<boolean | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { setMood, getMood, getAllMoods, importMoods } = useMoodStore()
+  const { setMood, getMood, getAllMoods, importMoods, deleteMood } = useMoodStore()
   const todayMood = getMood()
 
   // Check backend availability on mount
@@ -41,6 +41,20 @@ function HomePage() {
     setShowPicker(false)
     setSelectedDate(null)
     setPickerPosition(null)
+    // Trigger heatmap refresh
+    window.dispatchEvent(new Event('moodUpdated'))
+  }
+
+  const handleDeleteMood = () => {
+    if (selectedDate) {
+      deleteMood(selectedDate)
+    } else {
+      deleteMood() // Delete today's mood
+    }
+    setShowPicker(false)
+    setSelectedDate(null)
+    setPickerPosition(null)
+    showMessage('success', 'Mood deleted successfully!')
     // Trigger heatmap refresh
     window.dispatchEvent(new Event('moodUpdated'))
   }
@@ -255,8 +269,10 @@ function HomePage() {
         <MoodPicker
           isOpen={showPicker}
           onSelect={handleMoodSelect}
+          onDelete={handleDeleteMood}
           onClose={handleClosePicker}
           position={pickerPosition}
+          showDelete={true}
         />
       </div>
       <div>
