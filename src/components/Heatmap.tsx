@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useMoodStore } from '../store/useMoodStore'
 import { getMoodColor, getMoodHoverColor } from '../utils/moodColors'
+import { toDateKeyLocal } from '../utils/date'
 
 type HeatmapCell = {
   date: Date
@@ -17,8 +18,6 @@ interface HeatmapProps {
 const WEEKS_IN_YEAR = 53
 const DAYS_PER_WEEK = 7
 
-const getDateKey = (date: Date) => date.toISOString().split('T')[0]
-
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -31,7 +30,7 @@ const generateHeatmapCells = (year: number, allMoods: Record<string, any>): Heat
   for (let i = 0; i < WEEKS_IN_YEAR * DAYS_PER_WEEK; i++) {
     const date = new Date(startDate)
     date.setDate(startDate.getDate() + i)
-    const dateKey = getDateKey(date)
+    const dateKey = toDateKeyLocal(date)
     cells.push({
       date,
       label: dateKey,
@@ -41,44 +40,6 @@ const generateHeatmapCells = (year: number, allMoods: Record<string, any>): Heat
   }
 
   return cells
-}
-
-// Get month labels for the heatmap
-const getMonthLabels = (year: number): Array<{ week: number; month: string }> => {
-  const labels: Array<{ week: number; month: string }> = []
-  const janFirst = new Date(year, 0, 1)
-  const startDate = new Date(janFirst)
-  startDate.setDate(janFirst.getDate() - janFirst.getDay()) // move back to Sunday
-
-  let currentMonth = -1
-  let weekIndex = 0
-
-  for (let i = 0; i < WEEKS_IN_YEAR * DAYS_PER_WEEK; i += DAYS_PER_WEEK) {
-    const weekStartDate = new Date(startDate)
-    weekStartDate.setDate(startDate.getDate() + i)
-    
-    // Check if this week contains the first day of a month
-    for (let day = 0; day < DAYS_PER_WEEK; day++) {
-      const date = new Date(weekStartDate)
-      date.setDate(weekStartDate.getDate() + day)
-      
-      if (date.getFullYear() === year && date.getDate() === 1) {
-        const month = date.getMonth()
-        if (month !== currentMonth) {
-          labels.push({
-            week: weekIndex,
-            month: MONTHS[month],
-          })
-          currentMonth = month
-        }
-        break
-      }
-    }
-    
-    weekIndex++
-  }
-
-  return labels
 }
 
 function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps) {
@@ -119,7 +80,33 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
 
   const allMoods = getAllMoods()
   const cells = useMemo(() => generateHeatmapCells(year, allMoods), [year, allMoods, refreshKey])
-  const monthLabels = useMemo(() => getMonthLabels(year), [year])
+
+  // Month label for each week-column, computed from the cells themselves so it always lines up visually
+  const weekMonths = useMemo(() => {
+    const labels: Array<string | null> = Array(WEEKS_IN_YEAR).fill(null)
+    let lastMonth = -1
+
+    for (let weekIdx = 0; weekIdx < WEEKS_IN_YEAR; weekIdx++) {
+      // Look at the 7 days in this week (rows)
+      for (let day = 0; day < DAYS_PER_WEEK; day++) {
+        const cellIndex = weekIdx * DAYS_PER_WEEK + day
+        const cell = cells[cellIndex]
+        if (!cell || !cell.inYear) continue
+
+        const month = cell.date.getMonth()
+        const dayOfMonth = cell.date.getDate()
+
+        // Only label near the start of the month so labels don't repeat too often
+        if (month !== lastMonth && dayOfMonth <= 7) {
+          labels[weekIdx] = MONTHS[month]
+          lastMonth = month
+        }
+        break
+      }
+    }
+
+    return labels
+  }, [cells])
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
@@ -152,17 +139,14 @@ function Heatmap({ year = new Date().getFullYear(), onCellClick }: HeatmapProps)
                 gridTemplateColumns: `repeat(${WEEKS_IN_YEAR}, minmax(0, 1fr))`,
               }}
             >
-              {Array.from({ length: WEEKS_IN_YEAR }, (_, weekIdx) => {
-                const label = monthLabels.find(l => l.week === weekIdx)
-                return (
-                  <div
-                    key={weekIdx}
-                    className="text-xs font-semibold text-gray-700 dark:text-gray-300 text-center flex items-center justify-center"
-                  >
-                    {label ? label.month : ''}
-                  </div>
-                )
-              })}
+              {weekMonths.map((label, weekIdx) => (
+                <div
+                  key={weekIdx}
+                  className="text-xs font-semibold text-gray-700 dark:text-gray-300 text-center flex items-center justify-center"
+                >
+                  {label ?? ''}
+                </div>
+              ))}
             </div>
 
             {/* Heatmap cells */}

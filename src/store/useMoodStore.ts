@@ -13,32 +13,14 @@ export interface MoodData {
   [date: string]: MoodValue; // date format: YYYY-MM-DD
 }
 
-/**
- * Get the current date in YYYY-MM-DD format
- * Optimized for performance with caching and efficient string operations
- */
-const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+import { toDateKeyLocal } from '../utils/date';
 
+/**
+ * Get the current date in YYYY-MM-DD format using local time
+ * This ensures the stored date matches what the user sees in the calendar.
+ */
 function getDateKey(date?: Date | string): string {
-  // Fast path for string dates already in correct format
-  if (typeof date === 'string' && DATE_FORMAT_REGEX.test(date)) {
-    return date;
-  }
-  
-  let dateObj: Date;
-  
-  if (typeof date === 'string') {
-    // Try to parse the string as a date
-    dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) {
-      throw new Error('Invalid date string');
-    }
-  } else {
-    dateObj = date || new Date();
-  }
-  
-  // Optimized date formatting using toISOString (faster than manual formatting)
-  return dateObj.toISOString().split('T')[0];
+  return toDateKeyLocal(date);
 }
 
 /**
